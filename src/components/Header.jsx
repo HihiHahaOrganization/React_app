@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 
 export default function Header({ setUserSessionId }) {
   const [showLogin, setShowLogin] = useState(false);
-  const [username, setUsername] = useState('');
+  const [login, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
       // пример запроса, замени на свой
-      const response = await fetch(`http://localhost:5000/login`, {
+      const response = await fetch(`https://localhost:7156/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ login, password }),
       });
 
       const data = await response.json();
@@ -20,7 +20,7 @@ export default function Header({ setUserSessionId }) {
         setUserSessionId(data.userSessionId); // Устанавливаем ID сессии
         setShowLogin(false);
       } else {
-        alert('Ошибка авторизации');
+        alert('Авторизация прошла успешно');
       }
     } catch (error) {
       console.error(error);
@@ -51,7 +51,7 @@ export default function Header({ setUserSessionId }) {
               type="text"
               placeholder="Логин"
               className="w-full mb-2 p-2 border rounded"
-              value={username}
+              value={login}
               onChange={(e) => setUsername(e.target.value)}
             />
             <input
