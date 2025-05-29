@@ -8,6 +8,7 @@ import Table3Form from './components/Table3Form';
 
 
 export default function App() {
+  const [userSessionId, setUserSessionId] = useState(null); 
   const [step, setStep] = useState(0);
   const [jsonFiles, setJsonFiles] = useState({
     TMC: null,
@@ -19,6 +20,7 @@ export default function App() {
   
   const handleFile = (e) => {
     const file = e.target.files[0];
+    // if (!file || !userSessionId) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
@@ -27,24 +29,20 @@ export default function App() {
       const all = XLSX.utils.sheet_to_json(sheet1, { header: 1, defval: '' });
 
       // Таблица 1
-      const cell = sheet1[`C${2}`]?.v || ''
-  let deliveryDate = '';
+      
+    let formattedDate = '';
 
-  if (cell && typeof cell.v === 'string') {
-    // Проверка и сохранение без изменений (если уже в нужном формате)
-    deliveryDate = cell.v;
-  } else if (cell && cell.t === 'n') {
-    // Если это число Excel-даты — преобразуем
-    const parsed = XLSX.SSF.parse_date_code(cell.v);
-    const day = String(parsed.d).padStart(2, '0');
-    const month = String(parsed.m).padStart(2, '0');
-    const year = parsed.y;
-    deliveryDate = `${day}.${month}.${year}`;
-  }
   
+
+    
+
+    let excelSerial = sheet1['C2'].v;
+let baseDate = new Date(1900, 0, 1); // Excel epoch (1 Jan 1900)
+let date = new Date(baseDate.getTime() + (excelSerial - 1) * 86400000);
+let options = { day: 'numeric', year: 'numeric', month: 'numeric' };
   // Table 1
   const TMC = {
-    requestDate: deliveryDate,
+    requestDate: date.toLocaleDateString("en-US", options) || '',
     legalEntity: sheet1[`C${3}`]?.v || '',
     projectName: sheet1[`C${4}`]?.v || '',
     contractNumber: sheet1[`C${5}`]?.v || '',
@@ -148,14 +146,12 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
+      <Header setUserSessionId={setUserSessionId}/>
       <div className="flex flex-1">
         {step > 0 && <Sidebar currentStep={step} setStep={setStep} />}
         <main className="flex-1 overflow-auto">
         {step === 0 && (
           <div className="h-full flex flex-col justify-center items-center">
-          {/* <h2 className="text-lg mb-4">Загрузите Excel-файл</h2> */}
-
           <label className="cursor-pointer bg-orange-300 hover:bg-orange-700 text-white px-20 py-4 rounded-xl shadow-md transition duration-200">
             Загрузите файл универсального запроса
               <input
@@ -163,6 +159,7 @@ export default function App() {
                 accept=".xlsx"
                 onChange={handleFile}
                 className="hidden"
+                // disabled={!userSessionId}
               />
           </label>
       </div>

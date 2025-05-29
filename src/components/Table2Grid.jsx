@@ -45,40 +45,45 @@ export default function Table2Grid({ data, onNext, onPrev, logInfo }) {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button>
+        {/* <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button> */}
         <h2 className="text-xl font-semibold mb-4">Универсальный запрос</h2>
-        <button className="bg-blue-500 text-white px-3 py-2 rounded">Актуализировать товары</button>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button>
+        {/* <button className="bg-blue-500 text-white px-3 py-2 rounded">Актуализировать товары</button>
+        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button> */}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              {headersMap.map(({ label }, idx) => (
-                <th key={idx} className="border px-2 py-1 text-sm text-left">
-                  {label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIdx) => (
-              <tr key={rowIdx} className="even:bg-gray-50">
-                {headersMap.map(({ key }, colIdx) => (
-                  <td key={colIdx} className="border px-2 py-1">
-                    <input
-                      type="text"
-                      className="w-full border-none bg-transparent focus:outline-none"
-                      value={row[key]}
-                      onChange={e => handleChange(rowIdx, key, e.target.value)}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="h-[70vh] overflow-x-auto overflow-y-auto border border-gray-300 rounded">
+  <table className="min-w-max border-collapse">
+    <thead className="bg-gray-100 sticky top-0 z-10">
+      <tr>
+        {headersMap.map(({ label }, idx) => (
+          <th key={idx} className="border px-2 py-1 text-sm text-left bg-gray-100">
+            {label}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row, rowIdx) => (
+        <tr key={rowIdx} className="even:bg-gray-50">
+          {headersMap.map(({ key }, colIdx) => (
+            <td key={colIdx} className="border px-3 py-1">
+              <input
+                type="text"
+                className="w-full border-none bg-transparent focus:outline-none"
+                value={row[key]}
+                onChange={e => handleChange(rowIdx, key, e.target.value)}
+              />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<div className="flex justify-between items-center mt-6">
+        <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button>
+        <button className="bg-blue-500 text-white px-3 py-2 rounded">Актуализировать товары</button>
+        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button>
       </div>
     </div>
   );

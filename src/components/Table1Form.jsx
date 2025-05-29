@@ -44,12 +44,14 @@ export default function Table1Form({ data, onNext }) {
           />
         </div>
       ))}
-      <button onClick={() => {
+      <div className="flex justify-end items-right mt-4">
+        <button onClick={() => {
         console.log(JSON.stringify(formData,null,2));
         onNext(formData);
-        }} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+        }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
         Далее
-      </button>
+      </button></div>
+      
     </div>
   );
 }
