@@ -136,7 +136,13 @@ export default function App() {
         <main className="flex-1 overflow-auto">
           {step === 0 && (
             <div className="h-full flex flex-col justify-center items-center">
-              <label className="cursor-pointer bg-orange-300 hover:bg-orange-700 text-white px-20 py-4 rounded-xl shadow-md transition duration-200">
+              <label
+  className={`px-20 py-4 rounded-xl shadow-md transition duration-200 text-white
+    ${userSessionId
+      ? 'cursor-pointer bg-orange-300 hover:bg-orange-700'
+      : 'cursor-not-allowed bg-gray-400'}
+  `}
+>
                 Загрузите файл универсального запроса
                 <input
                   type="file"
