@@ -68,14 +68,14 @@ export default function Table3Form({ data, onSubmit, onPrev }) {
       </div>
       <div className="flex justify-between items-center mt-4">
         <button
-          className="bg-blue-600 hover:bg-gray-600 text-white px-4 py-2 rounded"
+          className="bg-orange-400 hover:bg-gray-600 text-white px-4 py-2 rounded"
           onClick={() => onPrev()}
         >
           Назад
         </button>
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="bg-orange-400 hover:bg-blue-700 text-white px-4 py-2 rounded"
         >
           Сформировать запрос
         </button>

@@ -1,32 +1,36 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 
 export default function Header({ setUserSessionId }) {
   const [showLogin, setShowLogin] = useState(false);
-  const [username, setUsername] = useState('');
+  const [login, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
-      // пример запроса, замени на свой
-      const response = await fetch(`http://localhost:5000/login`, {
+      const response = await fetch(`http://localhost:5000/login/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ login, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok && data.userSessionId) {
-        setUserSessionId(data.userSessionId); // Устанавливаем ID сессии
-        setShowLogin(false);
+        setUserSessionId(data.userSessionId);
+        Cookies.set('userSessionId', data.userSessionId); // сохраняем в куки
+        setUsername('');  // очистка логина
+        setPassword('');  // очистка пароля
+        setShowLogin(false); // Закрываем окно
       } else {
-        alert('Ошибка авторизации');
+        alert('Неверный логин или пароль'); //ошибка только при неуспехе
       }
     } catch (error) {
       console.error(error);
       alert('Ошибка при попытке авторизации');
     }
   };
+  
 
   return (
     <header className="flex justify-between items-center bg-orange-400 text-white px-6 py-4 shadow">
@@ -51,7 +55,7 @@ export default function Header({ setUserSessionId }) {
               type="text"
               placeholder="Логин"
               className="w-full mb-2 p-2 border rounded"
-              value={username}
+              value={login}
               onChange={(e) => setUsername(e.target.value)}
             />
             <input

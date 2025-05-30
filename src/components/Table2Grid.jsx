@@ -81,9 +81,9 @@ export default function Table2Grid({ data, onNext, onPrev, logInfo }) {
   </table>
 </div>
 <div className="flex justify-between items-center mt-6">
-        <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button>
-        <button className="bg-blue-500 text-white px-3 py-2 rounded">Актуализировать товары</button>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button>
+        <button className="bg-orange-400 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button>
+        <button className="bg-orange-400 text-white px-3 py-2 rounded">Актуализировать товары</button>
+        <button className="bg-orange-400 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button>
       </div>
     </div>
   );

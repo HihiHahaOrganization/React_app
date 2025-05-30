@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+
 const labels = {
   requestDate: 'Дата запроса',
   legalEntity: 'Юридическое лицо',
@@ -17,7 +18,7 @@ const labels = {
   requestResponsible: 'Ответственный за запрос'
 };
 
-export default function Table1Form({ data, onNext }) {
+export default function Table1Form({ data, onNext, onChange }) {
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
@@ -25,10 +26,12 @@ export default function Table1Form({ data, onNext }) {
   }, [data]);
 
   const handleChange = (key, value) => {
-    setFormData(prev => ({
-      ...prev,
+    const updated = {
+      ...formData,
       [key]: value,
-    }));
+    };
+    setFormData(updated);
+    if (onChange) onChange(updated); // передаем изменения наверх
   };
 
   return (
@@ -48,7 +51,7 @@ export default function Table1Form({ data, onNext }) {
         <button onClick={() => {
         console.log(JSON.stringify(formData,null,2));
         onNext(formData);
-        }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        }} className="bg-orange-400 hover:bg-blue-700 text-white px-4 py-2 rounded">
         Далее
       </button></div>
       
