@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { addUserSessionTmc } from '../api/addUserSessionTmc';
 
 const labels = {
   requestDate: 'Дата запроса',
@@ -18,8 +18,9 @@ const labels = {
   requestResponsible: 'Ответственный за запрос'
 };
 
-export default function Table1Form({ data, onNext, onChange }) {
+export default function Table1Form({ data, onNext, onChange, userSessionId }) {
   const [formData, setFormData] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (data) setFormData(data);
@@ -31,7 +32,21 @@ export default function Table1Form({ data, onNext, onChange }) {
       [key]: value,
     };
     setFormData(updated);
-    if (onChange) onChange(updated); // передаем изменения наверх
+    if (onChange) onChange(updated); // проброс наверх
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      console.log('Отправка данных:', formData);
+      await addUserSessionTmc(userSessionId, formData);
+      onNext(formData); // переход только после успешной отправки
+    } catch (error) {
+      alert('Ошибка при отправке данных: ' + error.message);
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -42,19 +57,22 @@ export default function Table1Form({ data, onNext, onChange }) {
           <label className="font-medium">{labels[key] || key}</label>
           <input
             value={value}
-            onChange={e => handleChange(key, e.target.value)}
+            onChange={(e) => handleChange(key, e.target.value)}
             className="border p-1"
           />
         </div>
       ))}
-      <div className="flex justify-end items-right mt-4">
-        <button onClick={() => {
-        console.log(JSON.stringify(formData,null,2));
-        onNext(formData);
-        }} className="bg-orange-400 hover:bg-blue-700 text-white px-4 py-2 rounded">
-        Далее
-      </button></div>
-      
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className={`px-4 py-2 rounded text-white ${
+            isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-400 hover:bg-blue-700'
+          }`}
+        >
+          {isSubmitting ? 'Отправка...' : 'Далее'}
+        </button>
+      </div>
     </div>
   );
 }
