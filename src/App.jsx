@@ -166,7 +166,7 @@ export default function App() {
               data={jsonFiles.UR.products}
               onNext={() => setStep(3)}
               onPrev={() => setStep(1)}
-              logInfo={jsonFiles.addInfo}
+              userSessionId={userSessionId}
 
             />
           )}
