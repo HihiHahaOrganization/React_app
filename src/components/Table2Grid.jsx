@@ -29,6 +29,7 @@ const headersMap = [
 
 export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
   const [rows, setRows] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (Array.isArray(data)) {
