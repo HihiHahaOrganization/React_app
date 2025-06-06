@@ -17,7 +17,7 @@ export default function Header({ setUserSessionId }) {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/login/Auth/login`, {
+      const response = await fetch(`https://localhost:7156/login/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, password }),

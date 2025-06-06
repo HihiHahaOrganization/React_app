@@ -1,6 +1,6 @@
 // src/api/tmcApi.js
 
-const BASE_URL = "http://localhost:5000/PriceAgregator";
+const BASE_URL = "https://localhost:7156/PriceAgregator";
 
 
 export const checkPositions = async (userSessionId, formDto) => {

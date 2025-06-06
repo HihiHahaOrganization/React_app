@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { checkPosition } from '../api/checkPosition';
+import { getUserSessionTmc } from '../api/getUserSessionTmc';
+import { getUserSessionAdditionalInfo } from '../api/getUserSessionAdditionalInfo';
 
 //@TODO ререндер после запроса цен, заглушка на нераспознанные товары
 

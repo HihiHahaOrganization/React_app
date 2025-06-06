@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000/PriceAgregator";
+const BASE_URL = "https://localhost:7156/PriceAgregator";
 
 export const addUserSessionTmc = async (userSessionId, tmcDto) => {
   const response = await fetch(`${BASE_URL}/addUserSessionTmc?userSessionId=${userSessionId}`, {
