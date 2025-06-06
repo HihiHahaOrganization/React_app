@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { checkPosition } from '../api/checkPosition';
+
+//@TODO ререндер после запроса цен, заглушка на нераспознанные товары
 
 const headersMap = [
   { key: 'number', label: '№' },
@@ -22,7 +25,7 @@ const headersMap = [
   { key: 'note',label:'Примечания'}
 ];
 
-export default function Table2Grid({ data, onNext, onPrev, logInfo }) {
+export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -41,6 +44,47 @@ export default function Table2Grid({ data, onNext, onPrev, logInfo }) {
       return newRows;
     });
   };
+   const handleSubmitNext = async () => {
+      try {
+        setIsSubmitting(true);
+        console.log('Отправка данных:', );
+        await checkPosition(userSessionId, rows);
+        onNext(rows); // переход только после успешной отправки
+      } catch (error) {
+        alert('Ошибка при отправке данных: ' + error.message);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    const handleSubmitPrices = async () => {
+      try {
+        setIsSubmitting(true);
+        console.log('Отправка данных:', );
+        await checkPosition(userSessionId, rows);
+        onPrev(rows); // переход только после успешной отправки
+      } catch (error) {
+        alert('Ошибка при отправке данных: ' + error.message);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    const handleSubmitPrev = async () => {
+      try {
+        setIsSubmitting(true);
+        console.log('Отправка данных:', formData);
+        await checkPosition(userSessionId, rows);
+        onPrev(rows); // переход только после успешной отправки
+      } catch (error) {
+        alert('Ошибка при отправке данных: ' + error.message);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
   return (
     <div className="p-4">
@@ -81,9 +125,9 @@ export default function Table2Grid({ data, onNext, onPrev, logInfo }) {
   </table>
 </div>
 <div className="flex justify-between items-center mt-6">
-        <button className="bg-orange-400 text-white px-3 py-2 rounded" onClick={() => onPrev(rows)}>Назад</button>
-        <button className="bg-orange-400 text-white px-3 py-2 rounded">Актуализировать товары</button>
-        <button className="bg-orange-400 text-white px-4 py-2 rounded" onClick={() => onNext(rows)}>Далее</button>
+        <button className="bg-orange-400 text-white px-3 py-2 rounded" onClick={handleSubmitPrev}>Назад</button>
+        <button className="bg-orange-400 text-white px-3 py-2 rounded" onClick={handleSubmitPrices}>Актуализировать товары</button>
+        <button className="bg-orange-400 text-white px-4 py-2 rounded" onClick={handleSubmitNext}>Далее</button>
       </div>
     </div>
   );

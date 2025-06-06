@@ -50,10 +50,10 @@ export default function App() {
     const excelSerial = sheet['C2']?.v || 0;
     const baseDate = new Date(1900, 0, 1);
     const date = new Date(baseDate.getTime() + (excelSerial - 1) * 86400000);
-    const options = { day: 'numeric', year: 'numeric', month: 'numeric' };
+    const options = {  year: 'numeric', month: 'numeric',day: 'numeric' };
 
     return {
-      requestDate: date.toLocaleDateString('en-US', options),
+      requestDate: date.toISOString(),
       legalEntity: sheet['C3']?.v || '',
       projectName: sheet['C4']?.v || '',
       contractNumber: sheet['C5']?.v || '',
@@ -167,7 +167,7 @@ export default function App() {
               data={jsonFiles.UR.products}
               onNext={() => setStep(3)}
               onPrev={() => setStep(1)}
-              logInfo={jsonFiles.addInfo}
+              userSessionId={userSessionId}
 
             />
           )}
