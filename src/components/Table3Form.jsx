@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFilePrices } from '../api/getFilePrices';
 
 const columnLabels = {
   needSpecialPrices: "Нужны ли спеццены",

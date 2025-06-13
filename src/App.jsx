@@ -7,6 +7,7 @@ import Table2Grid from './components/Table2Grid';
 import Table3Form from './components/Table3Form';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { checkPosition } from './api/checkPosition';
 
 
 
@@ -14,6 +15,8 @@ export default function App() {
   const [userSessionId, setUserSessionId] = useState(null); 
   const [step, setStep] = useState(0);
   const [jsonFiles, setJsonFiles] = useState({ TMC: null, UR: null, addInfo: null });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verifiedUR, setVerifiedUR] = useState(null);
 
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function App() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
       const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
@@ -39,6 +42,19 @@ export default function App() {
       const TMC = parseTMC(sheet1);
       const UR = parseURProducts(sheet1);
       const addInfo = parseAddInfo(sheet1, allRows);
+
+      try {
+        setIsSubmitting(true);
+        const verifiedData = await checkPosition(userSessionId, UR);
+        setVerifiedUR(verifiedData); // Сохраняем проверенные данные
+        setJsonFiles({ TMC, UR, addInfo });
+        setStep(1);
+      } catch (error) {
+        alert('Ошибка при проверке позиций: ' + error.message);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
 
       setJsonFiles({ TMC, UR, addInfo });
       setStep(1);
@@ -78,7 +94,7 @@ export default function App() {
 
       products.push({
         number: numberCell.v,
-        articul: sheet[`B${row}`]?.v || '',
+        articul: String(sheet[`B${row}`]?.v || ''),
         name: sheet[`C${row}`]?.v || '',
         quantity: sheet[`D${row}`]?.v || 0,
         measure: sheet[`E${row}`]?.v || '',
@@ -103,6 +119,21 @@ export default function App() {
     return { products };
   };
 
+  const handleSubmitPrices = async () => {
+      try {
+        setIsSubmitting(true);
+        console.log('Отправка данных:', UR);
+        await checkPosition(userSessionId, UR);
+      } catch (error) {
+        alert('Ошибка при отправке данных: ' + error.message);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+
+  // console.log(products);
   const parseAddInfo = (sheet, allRows) => {
     let startRow = allRows.findIndex(row => row[0] === 'Нужны ли спеццены') + 1;
     if (startRow === 0) startRow = 999; // fallback if not found
@@ -164,7 +195,7 @@ export default function App() {
 )}
           {step === 2 && (
             <Table2Grid
-              data={jsonFiles.UR.products}
+              data={jsonFiles.UR}
               onNext={() => setStep(3)}
               onPrev={() => setStep(1)}
               userSessionId={userSessionId}
