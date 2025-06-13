@@ -66,10 +66,9 @@ export default function App() {
     const excelSerial = sheet['C2']?.v || 0;
     const baseDate = new Date(1900, 0, 1);
     const date = new Date(baseDate.getTime() + (excelSerial - 1) * 86400000);
-    const options = {  year: 'numeric', month: 'numeric',day: 'numeric' };
 
     return {
-      requestDate: date.toISOString(),
+      requestDate: date.toISOString().split('T')[0],
       legalEntity: sheet['C3']?.v || '',
       projectName: sheet['C4']?.v || '',
       contractNumber: sheet['C5']?.v || '',
