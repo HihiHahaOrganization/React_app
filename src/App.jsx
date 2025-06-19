@@ -8,6 +8,7 @@ import Table3Form from './components/Table3Form';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { checkPosition } from './api/checkPosition';
+import { addPosition } from './api/addPosition';
 
 
 
@@ -43,14 +44,26 @@ export default function App() {
       const UR = parseURProducts(sheet1);
       const addInfo = parseAddInfo(sheet1, allRows);
 
+      // try {
+      //   setIsSubmitting(true);
+      //   console.log('Отправка данных:', UR);
+      //   const verifiedData = await checkPosition(userSessionId, UR);
+      //   console.log('Отправка данных:', verifiedData);
+      //   setVerifiedUR(verifiedData); // Сохраняем проверенные данные
+      //   setJsonFiles({ TMC, UR, addInfo });
+      //   setStep(1);
+      // } catch (error) {
+      //   alert('Ошибка при проверке позиций: ' + error.message);
+      //   console.error(error);
+      // } finally {
+      //   setIsSubmitting(false);
+      // }
       try {
         setIsSubmitting(true);
-        const verifiedData = await checkPosition(userSessionId, UR);
-        setVerifiedUR(verifiedData); // Сохраняем проверенные данные
-        setJsonFiles({ TMC, UR, addInfo });
-        setStep(1);
+        console.log('Отправка данных:', UR);
+        await addPosition(userSessionId, UR);
       } catch (error) {
-        alert('Ошибка при проверке позиций: ' + error.message);
+        alert('Ошибка при отправке данных: ' + error.message);
         console.error(error);
       } finally {
         setIsSubmitting(false);
@@ -122,7 +135,7 @@ export default function App() {
       try {
         setIsSubmitting(true);
         console.log('Отправка данных:', UR);
-        await checkPosition(userSessionId, UR);
+        await addPosition(userSessionId, UR);
       } catch (error) {
         alert('Ошибка при отправке данных: ' + error.message);
         console.error(error);

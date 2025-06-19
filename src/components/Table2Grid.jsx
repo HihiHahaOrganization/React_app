@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { checkPosition } from '../api/checkPosition';
 import { getUserSessionTmc } from '../api/getUserSessionTmc';
 import { getUserSessionAdditionalInfo } from '../api/getUserSessionAdditionalInfo';
+import { addPosition } from '../api/addPosition';
 
 const headersMap = [
   { key: 'number', label: '№' },
@@ -52,6 +53,7 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
     try {
       setIsSubmitting(true);
       console.log('Отправка данных:', rows);
+      await addPositions(userSessionId, rows)
       await getUserSessionAdditionalInfo(userSessionId);
       onNext(rows);
     } catch (error) {
@@ -65,11 +67,16 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
   const handleSubmitPrices = async () => {
     try {
       setIsSubmitting(true);
-      console.log('Отправка данных:', rows);
-      await checkPosition(userSessionId, rows);
-      onPrev(rows);
+      const updated = await checkPosition(userSessionId, { products: rows.products });
+  
+      // Обновляем rows.products, чтобы таблица перерисовалась
+      if (updated && Array.isArray(updated.products)) {
+        setRows({ products: updated.products });
+      } else {
+        alert('Сервер вернул некорректные данные');
+      }
     } catch (error) {
-      alert('Ошибка при отправке данных: ' + error.message);
+      alert('Ошибка при актуализации товаров: ' + error.message);
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -80,6 +87,7 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
     try {
       setIsSubmitting(true);
       console.log('Отправка данных:', rows);
+      await addPositions(userSessionId, rows)
       await getUserSessionTmc(userSessionId);
       onPrev(rows);
     } catch (error) {
