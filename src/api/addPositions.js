@@ -1,7 +1,7 @@
 const BASE_URL = "https://localhost:7156/PriceAgregator";
 
 
-export const addPosition = async (userSessionId, formDto) => {
+export const addPositions = async (userSessionId, formDto) => {
   const response = await fetch(`${BASE_URL}/addPositions?userSessionId=${userSessionId}`, {
     method: "POST",
     headers: {

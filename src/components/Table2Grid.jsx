@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { checkPosition } from '../api/checkPosition';
-import { getUserSessionTmc } from '../api/getUserSessionTmc';
-import { getUserSessionAdditionalInfo } from '../api/getUserSessionAdditionalInfo';
-import { addPosition } from '../api/addPosition';
+import { addPositions } from '../api/addPositions';
+import { getProducts } from '../api/getProducts'; // Предполагается, что такой API-метод существует
 
 const headersMap = [
   { key: 'number', label: '№' },
@@ -11,7 +10,7 @@ const headersMap = [
   { key: 'quantity', label: 'Кол-во' },
   { key: 'measure', label: 'Ед. изм.' },
   { key: 'characteristic', label: 'Характеристика'},
-  { key: 'vendor', label: 'Поставщик' },
+  { key: 'vendor', label: 'Вендор' },
   { key: 'responsiblePerson', label: 'ФИО отв.МпЗ'},
   { key: 'price', label: 'Входная цена за единицу с учетом НДС. Ставка НДС указана в колонке 13' },
   { key: 'retailPrice', label: 'Розничная цена за единицу с учетом НДС. Ставка НДС указана в колонке 13'},
@@ -26,20 +25,32 @@ const headersMap = [
   { key: 'note', label: 'Примечания'}
 ];
 
-export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
+export default function Table2Grid({ onNext, onPrev, userSessionId }) {
   const [rows, setRows] = useState({ products: [] });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Загрузка данных при монтировании
   useEffect(() => {
-    if (data && Array.isArray(data.products)) {
-      setRows({
-        products: data.products.filter(item => item.isCorrect)
-      });
-    } else {
-      setRows({ products: [] });
-      console.error('Table2Grid: data.products is not an array', data);
+    const loadProducts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getProducts(userSessionId); // Запрашиваем данные с сервера
+        if (response && Array.isArray(response.products)) {
+          setRows({ products: response.products });
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке товаров:', error);
+        alert('Не удалось загрузить данные: ' + error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (userSessionId) {
+      loadProducts();
     }
-  }, [data]);
+  }, [userSessionId]);
 
   const handleChange = (index, key, value) => {
     setRows(prev => {
@@ -52,10 +63,8 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
   const handleSubmitNext = async () => {
     try {
       setIsSubmitting(true);
-      console.log('Отправка данных:', rows);
-      await addPositions(userSessionId, rows)
-      await getUserSessionAdditionalInfo(userSessionId);
-      onNext(rows);
+      await checkPosition(userSessionId, rows);
+      onNext(rows); // Передаем актуальные данные дальше
     } catch (error) {
       alert('Ошибка при отправке данных: ' + error.message);
       console.error(error);
@@ -68,16 +77,16 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
     try {
       setIsSubmitting(true);
       const updated = await checkPosition(userSessionId, { products: rows.products });
-  
-      // Обновляем rows.products, чтобы таблица перерисовалась
+      
+      // Проверяем ответ и обновляем состояние
       if (updated && Array.isArray(updated.products)) {
-        setRows({ products: updated.products });
+        setRows({ products: updated.products }); // Обновляем данные
+        console.log(updated.products); 
       } else {
-        alert('Сервер вернул некорректные данные');
+        console.error('Некорректный формат ответа:', updated);
       }
     } catch (error) {
-      alert('Ошибка при актуализации товаров: ' + error.message);
-      console.error(error);
+      alert('Ошибка: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -86,10 +95,8 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
   const handleSubmitPrev = async () => {
     try {
       setIsSubmitting(true);
-      console.log('Отправка данных:', rows);
-      await addPositions(userSessionId, rows)
-      await getUserSessionTmc(userSessionId);
-      onPrev(rows);
+      await checkPosition(userSessionId, rows);
+      onPrev(rows); // Передаем актуальные данные назад
     } catch (error) {
       alert('Ошибка при отправке данных: ' + error.message);
       console.error(error);
@@ -97,6 +104,10 @@ export default function Table2Grid({ data, onNext, onPrev, userSessionId }) {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return <div className="p-4 text-center">Загрузка данных...</div>;
+  }
 
   return (
     <div className="p-4">

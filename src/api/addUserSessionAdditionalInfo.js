@@ -10,7 +10,7 @@ export const addUserSessionAdditionalInfo = async (userSessionId, tmcDto) => {
   });
 
   if (!response.ok) {
-    throw new Error("Ошибка при добавлении TMC");
+    throw new Error("Ошибка при добавлении Дополнительной информации");
   }
 
   return await response.json();

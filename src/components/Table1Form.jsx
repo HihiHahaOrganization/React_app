@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { addUserSessionTmc } from '../api/addUserSessionTmc';
+import { getUserSessionTmc } from '../api/getUserSessionTmc';
 
 const labels = {
   requestDate: 'Дата запроса',
@@ -18,56 +19,95 @@ const labels = {
   requestResponsible: 'Ответственный за запрос'
 };
 
-export default function Table1Form({ data, onNext, onChange, userSessionId }) {
-  const [formData, setFormData] = useState({});
+// Начальные значения формы
+const initialFormData = Object.keys(labels).reduce((acc, key) => {
+  acc[key] = '';
+  return acc;
+}, {});
+
+export default function Table1Form({ onNext, onChange, userSessionId }) {
+  const [formData, setFormData] = useState(initialFormData);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Загрузка данных при монтировании
   useEffect(() => {
-    if (data) setFormData(data);
-  }, [data]);
+    const fetchData = async () => {
+      if (!userSessionId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const data = await getUserSessionTmc(userSessionId);
+        
+        // Объединяем полученные данные с начальными значениями
+        const mergedData = { ...initialFormData, ...data };
+        setFormData(mergedData);
+        
+        if (onChange) onChange(mergedData);
+      } catch (err) {
+        console.error('Ошибка загрузки данных:', err);
+        alert('Не удалось загрузить данные формы');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userSessionId]);
 
   const handleChange = (key, value) => {
-    const updated = {
-      ...formData,
-      [key]: value,
-    };
-    setFormData(updated);
-    if (onChange) onChange(updated); // проброс наверх
+    const updatedData = { ...formData, [key]: value };
+    setFormData(updatedData);
+    if (onChange) onChange(updatedData);
   };
 
   const handleSubmit = async () => {
+    if (!userSessionId) return;
+
     try {
       setIsSubmitting(true);
-      console.log('Отправка данных:', formData);
       await addUserSessionTmc(userSessionId, formData);
-      onNext(formData); // переход только после успешной отправки
+      if (onNext) onNext();
     } catch (error) {
-      alert('Ошибка при отправке данных: ' + error.message);
+      alert('Ошибка отправки: ' + error.message);
       console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return <div className="p-4 text-center">Загрузка данных...</div>;
+  }
+
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Запрос на ТМЦ</h2>
-      {Object.entries(formData).map(([key, value]) => (
-        <div key={key} className="grid grid-cols-2 gap-2 mb-2">
-          <label className="font-medium">{labels[key] || key}</label>
-          <input
-            value={value}
-            onChange={(e) => handleChange(key, e.target.value)}
-            className="border p-1"
-          />
-        </div>
-      ))}
-      <div className="flex justify-end mt-4">
+      <h2 className="text-xl font-semibold mb-6">Запрос на ТМЦ</h2>
+      
+      <div className="space-y-4 max-w-2xl mx-auto">
+        {Object.entries(labels).map(([key, label]) => (
+          <div key={key} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            <label className="font-medium md:text-right">{label}</label>
+            <input
+              value={formData[key] || ''}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className="border p-2 rounded col-span-2"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end mt-8">
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`px-4 py-2 rounded text-white ${
-            isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-400 hover:bg-blue-700'
+          disabled={isLoading || isSubmitting}
+          className={`px-6 py-2 rounded text-white font-medium ${
+            isLoading || isSubmitting 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-orange-400 hover:bg-orange-600'
           }`}
         >
           {isSubmitting ? 'Отправка...' : 'Далее'}

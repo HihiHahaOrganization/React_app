@@ -7,8 +7,9 @@ import Table2Grid from './components/Table2Grid';
 import Table3Form from './components/Table3Form';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { addUserSessionTmc } from './api/addUserSessionTmc';
 import { checkPosition } from './api/checkPosition';
-import { addPosition } from './api/addPosition';
+import { addUserSessionAdditionalInfo } from './api/addUserSessionAdditionalInfo';
 
 
 
@@ -43,33 +44,37 @@ export default function App() {
       const TMC = parseTMC(sheet1);
       const UR = parseURProducts(sheet1);
       const addInfo = parseAddInfo(sheet1, allRows);
+      console.log(TMC)
+      console.log(UR)
+      console.log(addInfo)
 
+      
+  try {
+    setIsSubmitting(true);
+
+    await addUserSessionTmc(userSessionId, TMC); 
+    const verifiedData = await checkPosition(userSessionId, UR); 
+    await addUserSessionAdditionalInfo(userSessionId, addInfo); 
+
+    setStep(1);
+  } catch (error) {
+    alert('Ошибка при загрузке данных: ' + error.message);
+    console.error(error);
+  } finally {
+    setIsSubmitting(false);
+  }
       // try {
       //   setIsSubmitting(true);
       //   console.log('Отправка данных:', UR);
-      //   const verifiedData = await checkPosition(userSessionId, UR);
-      //   console.log('Отправка данных:', verifiedData);
-      //   setVerifiedUR(verifiedData); // Сохраняем проверенные данные
-      //   setJsonFiles({ TMC, UR, addInfo });
-      //   setStep(1);
+      //   await addPositions(userSessionId, UR);
       // } catch (error) {
-      //   alert('Ошибка при проверке позиций: ' + error.message);
+      //   alert('Ошибка при отправке данных: ' + error.message);
       //   console.error(error);
       // } finally {
       //   setIsSubmitting(false);
       // }
-      try {
-        setIsSubmitting(true);
-        console.log('Отправка данных:', UR);
-        await addPosition(userSessionId, UR);
-      } catch (error) {
-        alert('Ошибка при отправке данных: ' + error.message);
-        console.error(error);
-      } finally {
-        setIsSubmitting(false);
-      }
 
-      setJsonFiles({ TMC, UR, addInfo });
+      setJsonFiles({ TMC, UR:verifiedUR, addInfo });
       setStep(1);
     };
     reader.readAsArrayBuffer(file);
@@ -150,10 +155,14 @@ export default function App() {
     let startRow = allRows.findIndex(row => row[0] === 'Нужны ли спеццены') + 1;
     if (startRow === 0) startRow = 999; // fallback if not found
 
+    const excelSerial = sheet[`C${startRow + 2}`]?.v || 0;
+    const baseDate = new Date(1900, 0, 1);
+    const date1 = new Date(baseDate.getTime() + (excelSerial - 1) * 86400000);
+
     return {
       needSpecialPrices: sheet[`C${startRow}`]?.v || '',
       includeDeliveryCost: sheet[`C${startRow + 1}`]?.v || '',
-      desiredResponseDate: sheet[`C${startRow + 2}`]?.v || '',
+      desiredResponseDate: date1.toISOString(),
       desiredResponseForm: sheet[`C${startRow + 3}`]?.v || '',
       comment: sheet[`C${startRow + 4}`]?.v || '',
       customerFullName: sheet[`C${startRow + 7}`]?.v || '',
@@ -199,7 +208,6 @@ export default function App() {
           )}
           {step === 1 && (
   <Table1Form 
-    data={jsonFiles.TMC} 
     onNext={() => setStep(2)} 
     onChange={updateTMC} // передаем функцию обновления
     userSessionId = {userSessionId}
@@ -207,14 +215,17 @@ export default function App() {
 )}
           {step === 2 && (
             <Table2Grid
-              data={jsonFiles.UR}
+              
               onNext={() => setStep(3)}
               onPrev={() => setStep(1)}
               userSessionId={userSessionId}
 
             />
           )}
-          {step === 3 && <Table3Form data={jsonFiles.addInfo} onPrev={() => setStep(2)} />}
+          {step === 3 && 
+          <Table3Form 
+               
+              onPrev={() => setStep(2)} />}
         </main>
       </div>
     </div>
