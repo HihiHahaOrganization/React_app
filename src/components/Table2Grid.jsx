@@ -36,7 +36,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
       try {
         setIsLoading(true);
         const response = await getProducts(userSessionId); // Запрашиваем данные с сервера
-        console.log(response)
+        
         if (response && Array.isArray(response.products)) {
           setRows({ products: response.products });
         }
@@ -140,7 +140,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
                       className={`w-full border-none bg-transparent focus:outline-none ${
                         row.isCorrect === false ? 'text-red-700 font-semibold' : ''
                       }`}
-                      value={row[key] || ''}
+                      value={row[key] ?? ''}
                       onChange={e => handleChange(rowIdx, key, e.target.value)}
                     />
                   </td>

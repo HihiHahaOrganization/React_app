@@ -55,14 +55,15 @@ export default function Header({ setUserSessionId }) {
         return;
       }
   
-      await addFeedback({ message: feedbackText }); // ← Оборачиваем в объект с ключом "message"
-      console.log(feedbackText)
-      alert('Спасибо за ваш отзыв!');
+      // Вызываем функцию, но не ожидаем данных в ответе
+      await addFeedback({ message: feedbackText });
+      
+      // Если выполнение дошло сюда, значит, ошибки не было
       setFeedbackText('');
       setShowFeedback(false);
     } catch (error) {
       console.error('Ошибка при отправке отзыва:', error);
-      
+      alert(error.message || 'Произошла ошибка при отправке отзыва.');
     }
   };
   
