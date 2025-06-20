@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { addFeedback } from '../api/addFeedback';
 
 export default function Header({ setUserSessionId }) {
   const [showLogin, setShowLogin] = useState(false);
@@ -47,12 +48,24 @@ export default function Header({ setUserSessionId }) {
     setUserId('');
   };
 
-  const handleSendFeedback = () => {
-    console.log('Отзыв отправлен:', feedbackText);
-    alert('Спасибо за обратную связь!');
-    setFeedbackText('');
-    setShowFeedback(false);
+  const handleSendFeedback = async () => {
+    try {
+      if (!feedbackText.trim()) {
+        alert('Пожалуйста, введите текст отзыва');
+        return;
+      }
+  
+      await addFeedback({ message: feedbackText }); // ← Оборачиваем в объект с ключом "message"
+      console.log(feedbackText)
+      alert('Спасибо за ваш отзыв!');
+      setFeedbackText('');
+      setShowFeedback(false);
+    } catch (error) {
+      console.error('Ошибка при отправке отзыва:', error);
+      
+    }
   };
+  
 
   return (
     <header className="flex justify-between items-center bg-orange-400 text-white px-6 py-4 shadow relative">

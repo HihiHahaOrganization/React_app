@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { checkPosition } from '../api/checkPosition';
+import { checkPositions } from '../api/checkPositions';
 import { addPositions } from '../api/addPositions';
 import { getProducts } from '../api/getProducts'; // Предполагается, что такой API-метод существует
 
@@ -63,7 +63,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
   const handleSubmitNext = async () => {
     try {
       setIsSubmitting(true);
-      await checkPosition(userSessionId, rows);
+      await checkPositions(userSessionId, rows);
       onNext(rows); // Передаем актуальные данные дальше
     } catch (error) {
       alert('Ошибка при отправке данных: ' + error.message);
@@ -76,7 +76,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
   const handleSubmitPrices = async () => {
     try {
       setIsSubmitting(true);
-      const updated = await checkPosition(userSessionId, { products: rows.products });
+      const updated = await checkPositions(userSessionId, { products: rows.products });
       
       // Проверяем ответ и обновляем состояние
       if (updated && Array.isArray(updated.products)) {
@@ -95,7 +95,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
   const handleSubmitPrev = async () => {
     try {
       setIsSubmitting(true);
-      await checkPosition(userSessionId, rows);
+      await checkPositions(userSessionId, rows);
       onPrev(rows); // Передаем актуальные данные назад
     } catch (error) {
       alert('Ошибка при отправке данных: ' + error.message);

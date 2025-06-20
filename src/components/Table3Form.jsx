@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getFilePrices } from '../api/getFilePrices';
 import { getUserSessionAdditionalInfo } from '../api/getUserSessionAdditionalInfo';
 
 const columnLabels = {
@@ -29,16 +28,26 @@ export default function Table3Form({ userSessionId, onSubmit, onPrev }) {
         const data = await getUserSessionAdditionalInfo(userSessionId);
         
         if (data && typeof data === 'object') {
-          const formattedData = Object.entries(data).map(([key, value]) => ({
-            key,
-            label: columnLabels[key] || key,
-            value: value || ''
-          }));
-          setFormData(formattedData);
+          // Фильтруем данные, исключая userSessionId и другие нежелательные поля
+          const filteredData = Object.entries(data)
+            .filter(([key]) => columnLabels.hasOwnProperty(key))
+            .map(([key, value]) => ({
+              key,
+              label: columnLabels[key],
+              value: value || ''
+            }));
+          
+          setFormData(filteredData);
         }
       } catch (error) {
         console.error('Ошибка загрузки данных:', error);
-        alert('Не удалось загрузить дополнительную информацию');
+        // Создаем пустую форму на основе columnLabels при ошибке
+        const emptyForm = Object.keys(columnLabels).map(key => ({
+          key,
+          label: columnLabels[key],
+          value: ''
+        }));
+        setFormData(emptyForm);
       } finally {
         setIsLoading(false);
       }
@@ -46,6 +55,15 @@ export default function Table3Form({ userSessionId, onSubmit, onPrev }) {
 
     if (userSessionId) {
       loadAdditionalInfo();
+    } else {
+      // Если нет userSessionId, создаем пустую форму
+      const emptyForm = Object.keys(columnLabels).map(key => ({
+        key,
+        label: columnLabels[key],
+        value: ''
+      }));
+      setFormData(emptyForm);
+      setIsLoading(false);
     }
   }, [userSessionId]);
 
@@ -78,10 +96,6 @@ export default function Table3Form({ userSessionId, onSubmit, onPrev }) {
 
   if (isLoading) {
     return <div className="p-4 text-center">Загрузка данных...</div>;
-  }
-
-  if (!formData.length) {
-    return <div className="p-4">Нет данных для отображения</div>;
   }
 
   return (

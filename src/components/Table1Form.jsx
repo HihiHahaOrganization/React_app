@@ -19,7 +19,6 @@ const labels = {
   requestResponsible: 'Ответственный за запрос'
 };
 
-// Начальные значения формы
 const initialFormData = Object.keys(labels).reduce((acc, key) => {
   acc[key] = '';
   return acc;
@@ -30,7 +29,6 @@ export default function Table1Form({ onNext, onChange, userSessionId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Загрузка данных при монтировании
   useEffect(() => {
     const fetchData = async () => {
       if (!userSessionId) {
@@ -41,11 +39,8 @@ export default function Table1Form({ onNext, onChange, userSessionId }) {
       try {
         setIsLoading(true);
         const data = await getUserSessionTmc(userSessionId);
-        
-        // Объединяем полученные данные с начальными значениями
         const mergedData = { ...initialFormData, ...data };
         setFormData(mergedData);
-        
         if (onChange) onChange(mergedData);
       } catch (err) {
         console.error('Ошибка загрузки данных:', err);
@@ -84,30 +79,34 @@ export default function Table1Form({ onNext, onChange, userSessionId }) {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-6">Запрос на ТМЦ</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold mb-8 text-gray-800">Запрос на ТМЦ</h2>
       
-      <div className="space-y-4 max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 gap-6">
         {Object.entries(labels).map(([key, label]) => (
-          <div key={key} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-            <label className="font-medium md:text-right">{label}</label>
-            <input
-              value={formData[key] || ''}
-              onChange={(e) => handleChange(key, e.target.value)}
-              className="border p-2 rounded col-span-2"
-            />
+          <div key={key} className="grid grid-cols-5 gap-4 items-center">
+            <label className="col-span-2 font-medium text-gray-700 text-right pr-4">
+              {label}
+            </label>
+            <div className="col-span-3">
+              <input
+                value={formData[key] || ''}
+                onChange={(e) => handleChange(key, e.target.value)}
+                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-end mt-10">
         <button
           onClick={handleSubmit}
           disabled={isLoading || isSubmitting}
-          className={`px-6 py-2 rounded text-white font-medium ${
+          className={`px-8 py-3 rounded-md text-white font-medium text-lg ${
             isLoading || isSubmitting 
               ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-orange-400 hover:bg-orange-600'
+              : 'bg-orange-500 hover:bg-orange-600 transition-colors'
           }`}
         >
           {isSubmitting ? 'Отправка...' : 'Далее'}

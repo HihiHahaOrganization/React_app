@@ -8,7 +8,7 @@ import Table3Form from './components/Table3Form';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { addUserSessionTmc } from './api/addUserSessionTmc';
-import { checkPosition } from './api/checkPosition';
+import { checkPositions } from './api/checkPositions';
 import { addUserSessionAdditionalInfo } from './api/addUserSessionAdditionalInfo';
 
 
@@ -53,7 +53,7 @@ export default function App() {
     setIsSubmitting(true);
 
     await addUserSessionTmc(userSessionId, TMC); 
-    const verifiedData = await checkPosition(userSessionId, UR); 
+    const verifiedData = await checkPositions(userSessionId, UR); 
     await addUserSessionAdditionalInfo(userSessionId, addInfo); 
 
     setStep(1);
@@ -224,7 +224,7 @@ export default function App() {
           )}
           {step === 3 && 
           <Table3Form 
-               
+              userSessionId={userSessionId}
               onPrev={() => setStep(2)} />}
         </main>
       </div>
