@@ -36,6 +36,7 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
       try {
         setIsLoading(true);
         const response = await getProducts(userSessionId); // Запрашиваем данные с сервера
+        console.log(response)
         if (response && Array.isArray(response.products)) {
           setRows({ products: response.products });
         }
@@ -128,12 +129,17 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
           </thead>
           <tbody>
             {rows.products.map((row, rowIdx) => (
-              <tr key={rowIdx} className="even:bg-gray-50">
+              <tr
+                key={rowIdx}
+                className={`even:bg-gray-50 ${row.isCorrect === false ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
+              >
                 {headersMap.map(({ key }, colIdx) => (
                   <td key={colIdx} className="border px-3 py-1">
                     <input
                       type="text"
-                      className="w-full border-none bg-transparent focus:outline-none"
+                      className={`w-full border-none bg-transparent focus:outline-none ${
+                        row.isCorrect === false ? 'text-red-700 font-semibold' : ''
+                      }`}
                       value={row[key] || ''}
                       onChange={e => handleChange(rowIdx, key, e.target.value)}
                     />
@@ -144,7 +150,14 @@ export default function Table2Grid({ onNext, onPrev, userSessionId }) {
           </tbody>
         </table>
       </div>
-      
+
+      {/* Подсказка об ошибках */}
+      {rows.products.some(p => p.isCorrect === false) && (
+        <div className="mt-2 text-red-600 text-sm">
+          Некоторые позиции не распознаны. Проверьте выделенные строки.
+        </div>
+      )}
+
       <div className="flex justify-between items-center mt-6">
         <button 
           className="bg-orange-400 text-white px-3 py-2 rounded" 
