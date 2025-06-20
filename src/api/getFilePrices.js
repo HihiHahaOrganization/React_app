@@ -1,5 +1,3 @@
-// src/api/priceApi.js
-
 const BASE_URL = "https://localhost:7156/PriceAgregator";
 
 export const getFilePrices = async (userSessionId) => {
@@ -9,6 +7,6 @@ export const getFilePrices = async (userSessionId) => {
     throw new Error("Ошибка при получении цен из файла");
   }
 
-  return await response.json();
+  const blob = await response.blob(); // <-- получаем файл в виде Blob
+  return blob;
 };
-// Прилетает готовый файл, не json

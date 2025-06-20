@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUserSessionAdditionalInfo } from '../api/getUserSessionAdditionalInfo';
+import {getFilePrices} from '../api/getFilePrices';
 
 const columnLabels = {
   needSpecialPrices: "Нужны ли спеццены",
@@ -78,21 +79,41 @@ export default function Table3Form({ userSessionId, onSubmit, onPrev }) {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+  
       const result = formData.reduce((acc, { key, value }) => {
         acc[key] = value;
         return acc;
       }, {});
-      
+  
       if (onSubmit) {
         await onSubmit(result);
       }
+  
+      // Получение файла с сервера
+      const blob = await getFilePrices(userSessionId);
+      
+      // Создание временного URL
+      const url = window.URL.createObjectURL(blob);
+      
+      // Создание и клик по ссылке
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'file-prices.xlsx'); // можно задать любое имя файла
+      document.body.appendChild(link);
+      link.click();
+      
+      // Очистка
+      link.remove();
+      window.URL.revokeObjectURL(url);
+  
     } catch (error) {
       console.error('Ошибка при отправке:', error);
-      alert('Ошибка при формировании запроса');
+      alert('Ошибка при формировании запроса или загрузке файла');
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   if (isLoading) {
     return <div className="p-4 text-center">Загрузка данных...</div>;
