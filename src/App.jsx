@@ -10,7 +10,8 @@ import Cookies from 'js-cookie';
 import { addUserSessionTmc } from './api/addUserSessionTmc';
 import { checkPositions } from './api/checkPositions';
 import { addUserSessionAdditionalInfo } from './api/addUserSessionAdditionalInfo';
-
+// import { getUserSessionStatus } from './api/getUserSessionStatus'
+import { getUserSessionStatus } from './api/getUserSessionStatus';
 
 
 export default function App() {
@@ -19,14 +20,50 @@ export default function App() {
   const [jsonFiles, setJsonFiles] = useState({ TMC: null, UR: null, addInfo: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verifiedUR, setVerifiedUR] = useState(null);
+  const [sessionStatus, setSessionStatus] = useState({
+    userSessionId: null,
+    isContinues: false
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
+  
 
   useEffect(() => {
-    const saved = Cookies.get('userSessionId');
-    if (saved) {
-      setUserSessionId(saved);
+    const checkSessionStatus = async () => {
+      try {
+        const savedSessionId = Cookies.get('userSessionId');
+        if (savedSessionId) {
+          const status = await getUserSessionStatus(savedSessionId);
+          setSessionStatus({
+            userSessionId: status.userSessionId,
+            isContinues: status.isContinues,
+          });
+          if (status.isContinues) {
+            setUserSessionId(status.userSessionId);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    if (step === 0) {
+      checkSessionStatus();
     }
-  }, []);
+  }, [step]);
+
+  const handleContinueSession = async () => {
+    try {
+      setStep(1);
+    } catch (error) {
+      console.error('Error continuing session:', error);
+      alert('Не удалось загрузить данные сессии');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFile = (e) => {
     if (!userSessionId) return;
@@ -179,22 +216,44 @@ export default function App() {
       TMC: newTMC,
     }));
   };
+  const hasActiveSession = sessionStatus.isContinues;
 
   return (
     <div className="flex flex-col h-screen">
       <Header setUserSessionId={setUserSessionId} />
-      <div className="flex flex-1">
-        {step > 0 && <Sidebar currentStep={step} setStep={setStep} />}
+      <div className="flex flex-1 overflow-hidden">
+        {step > 0 && (
+          <Sidebar
+          currentStep={step}
+          setStep={setStep}
+          setUserSessionId={setUserSessionId}
+          userSessionId={userSessionId}
+        />
+        )}
         <main className="flex-1 overflow-auto">
           {step === 0 && (
-            <div className="h-full flex flex-col justify-center items-center">
+            <div className="h-full flex flex-col justify-center items-center gap-4">
+              {isLoading ? (
+                <div>Загрузка...</div>
+              ) : hasActiveSession ? (
+                <>
+                  <button
+                    onClick={handleContinueSession}
+                    className="px-20 py-4 rounded-xl shadow-md bg-blue-500 hover:bg-blue-700 text-white transition duration-200"
+                  >
+                    Продолжить текущую сессию
+                  </button>
+                  <span className="text-gray-500">или</span>
+                </>
+              ) : null}
+              
               <label
-  className={`px-20 py-4 rounded-xl shadow-md transition duration-200 text-white
-    ${userSessionId
-      ? 'cursor-pointer bg-orange-300 hover:bg-orange-700'
-      : 'cursor-not-allowed bg-gray-400'}
-  `}
->
+                className={`px-20 py-4 rounded-xl shadow-md transition duration-200 text-white
+                  ${userSessionId
+                    ? 'cursor-pointer bg-orange-300 hover:bg-orange-700'
+                    : 'cursor-not-allowed bg-gray-400'}
+                `}
+              >
                 Загрузите файл универсального запроса
                 <input
                   type="file"
@@ -207,25 +266,25 @@ export default function App() {
             </div>
           )}
           {step === 1 && (
-  <Table1Form 
-    onNext={() => setStep(2)} 
-    onChange={updateTMC} // передаем функцию обновления
-    userSessionId = {userSessionId}
-  />
-)}
+            <Table1Form 
+              onNext={() => setStep(2)} 
+              onChange={updateTMC}
+              userSessionId={userSessionId}
+            />
+          )}
           {step === 2 && (
             <Table2Grid
-              
               onNext={() => setStep(3)}
               onPrev={() => setStep(1)}
               userSessionId={userSessionId}
-
             />
           )}
           {step === 3 && 
-          <Table3Form 
+            <Table3Form 
               userSessionId={userSessionId}
-              onPrev={() => setStep(2)} />}
+              onPrev={() => setStep(2)} 
+            />
+          }
         </main>
       </div>
     </div>

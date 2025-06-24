@@ -84,7 +84,7 @@ export default function Header({ setUserSessionId }) {
       <div className="flex items-center space-x-4">
         {userId ? (
           <>
-            <span className="text-white">Вы вошли</span>
+            <span className="text-white"></span>
             <button
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
               onClick={handleLogout}
