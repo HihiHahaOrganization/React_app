@@ -1,7 +1,7 @@
-const BASE_URL = "https://localhost:7156/PriceAgregator";
+import {BASE_URL} from './config'
 
 export const addUserSessionAdditionalInfo = async (userSessionId, tmcDto) => {
-  const response = await fetch(`${BASE_URL}/addUserSessionAdditionalInfo?userSessionId=${userSessionId}`, {
+  const response = await fetch(`${BASE_URL}/PriceAgregator/addUserSessionAdditionalInfo?userSessionId=${userSessionId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

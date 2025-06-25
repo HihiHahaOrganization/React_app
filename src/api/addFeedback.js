@@ -1,7 +1,7 @@
-const BASE_URL = "https://localhost:7156/Admin";
+import {BASE_URL} from './config'
 
 export const addFeedback = async (message) => {
-    const response = await fetch(`${BASE_URL}/addFeedback`, {
+    const response = await fetch(`${BASE_URL}/Admin/addFeedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

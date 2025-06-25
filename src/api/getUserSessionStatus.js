@@ -1,7 +1,7 @@
-const BASE_URL = "https://localhost:7156/Auth";
+import {BASE_URL} from './config'
 
 export const getUserSessionStatus = async (userSessionId) => {
-  const response = await fetch(`${BASE_URL}/getUserSessionStatus?userSessionId=${userSessionId}`);
+  const response = await fetch(`${BASE_URL}/Auth/getUserSessionStatus?userSessionId=${userSessionId}`);
 
   if (!response.ok) {
     throw new Error("Ошибка при получении статуса сессии");

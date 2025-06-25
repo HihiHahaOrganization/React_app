@@ -1,10 +1,8 @@
-// src/api/tmcApi.js
-
-const BASE_URL = "https://localhost:7156/PriceAgregator";
+import {BASE_URL} from './config'
 
 
 export const checkPositions = async (userSessionId, formDto) => {
-  const response = await fetch(`${BASE_URL}/checkPositions?userSessionId=${userSessionId}`, {
+  const response = await fetch(`${BASE_URL}/PriceAgregator/checkPositions?userSessionId=${userSessionId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

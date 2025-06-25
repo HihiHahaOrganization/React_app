@@ -1,7 +1,7 @@
-const BASE_URL = "https://localhost:7156/Auth";
+import {BASE_URL} from './config'
 
 export const createUserSession = async (userSessionId) => {
-  const response = await fetch(`${BASE_URL}/createUserSession?userSessionId=${userSessionId}`, {
+  const response = await fetch(`${BASE_URL}/Auth/createUserSession?userSessionId=${userSessionId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

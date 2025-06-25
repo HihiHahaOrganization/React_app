@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { addFeedback } from '../api/addFeedback';
+import { login as loginRequest} from '../api/login';
 
 export default function Header({ setUserSessionId }) {
   const [showLogin, setShowLogin] = useState(false);
@@ -18,15 +19,9 @@ export default function Header({ setUserSessionId }) {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`https://localhost:7156/Auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.userSessionId) {
+      const data = await loginRequest(login, password);
+  
+      if (data.userSessionId) {
         setUserSessionId(data.userSessionId);
         Cookies.set('userSessionId', data.userSessionId);
         setUserId(data.userSessionId);
@@ -38,7 +33,7 @@ export default function Header({ setUserSessionId }) {
       }
     } catch (error) {
       console.error(error);
-      alert('Ошибка при попытке авторизации');
+      alert(error.message || 'Ошибка при попытке авторизации');
     }
   };
 
