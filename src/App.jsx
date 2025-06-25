@@ -187,7 +187,7 @@ export default function App() {
     };
 
 
-  // console.log(products);
+  
   const parseAddInfo = (sheet, allRows) => {
     let startRow = allRows.findIndex(row => row[0] === 'Нужны ли спеццены') + 1;
     if (startRow === 0) startRow = 999; // fallback if not found
@@ -220,7 +220,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header setUserSessionId={setUserSessionId} />
+      <Header setUserSessionId={setUserSessionId} setStep={setStep} />
       <div className="flex flex-1 overflow-hidden">
         {step > 0 && (
           <Sidebar

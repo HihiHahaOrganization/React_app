@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { addFeedback } from '../api/addFeedback';
 import { login as loginRequest} from '../api/login';
 
-export default function Header({ setUserSessionId }) {
+export default function Header({ setUserSessionId, setStep }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
@@ -41,6 +41,7 @@ export default function Header({ setUserSessionId }) {
     Cookies.remove('userSessionId');
     setUserSessionId('');
     setUserId('');
+    setStep(0);
   };
 
   const handleSendFeedback = async () => {
